@@ -356,6 +356,9 @@ Technical options:
 - Twilio Conference + Daily.co bridge
 - Pipecat's Twilio transport directly
 
+Reference implementation:
+- https://github.com/pipecat-ai/pipecat/blob/main/examples/foundational/07-interruptible.py
+
 Considerations:
 - Call status tracking (ringing, answered, disconnected)
 - Cost tracking (~$0.013/min US, varies internationally)
@@ -446,6 +449,9 @@ Allow users to choose AI mediator voice:
 Recommended voices:
 - Female: Rachel (calm, professional), Domi (neutral), Bella (warm)
 - Male: Adam (professional), Antoni (trustworthy), Josh (clear)
+
+Reference implementation:
+- https://github.com/pipecat-ai/pipecat/blob/main/examples/foundational/15-switch-voices.py
 
 ---
 
