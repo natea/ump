@@ -26,12 +26,12 @@ from pipecat.frames.frames import (
     UserStoppedSpeakingFrame,
 )
 
-from voice_referee.src.processors.referee_monitor import RefereeMonitorProcessor
-from voice_referee.src.processors.conversation_state import ConversationState
-from voice_referee.src.processors.speaker_mapper import SpeakerMapper
-from voice_referee.src.analysis.conversation_analyzer import ConversationAnalyzer
-from voice_referee.src.decision.intervention_decider import InterventionDecider
-from voice_referee.src.config.settings import ProcessorConfig
+from processors.referee_monitor import RefereeMonitorProcessor
+from processors.conversation_state import ConversationState
+from processors.speaker_mapper import SpeakerMapper
+from analysis.conversation_analyzer import ConversationAnalyzer
+from decision.intervention_decider import InterventionDecider
+from config.settings import ProcessorConfig
 
 
 # =====================================================================
@@ -387,8 +387,6 @@ async def test_protocol_violation_past_reference(
     recent_utterances = [utt.text for utt in state.get_recent_transcript(n=5)]
 
     # Check for past references using the decider's logic
-    from voice_referee.src.processors.decider import InterventionDecider as OldDecider
-
     # Create a simple check for past references
     past_reference_detected = any(
         any(keyword in utt.lower() for keyword in ['last year', 'last month', 'previously', 'before', 'always', 'never'])

@@ -6,7 +6,12 @@ import pytest
 import sys
 from pathlib import Path
 
-# Add src directory to Python path for imports
+# Add voice_referee's parent directory (ump) to Python path for imports
+# This allows imports like: from voice_referee.src.analysis import ...
+voice_referee_parent = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(voice_referee_parent))
+
+# Also add src directory for direct imports like: from analysis import ...
 src_path = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_path))
 

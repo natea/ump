@@ -6,7 +6,7 @@ service with proper diarization settings.
 
 import pytest
 from unittest.mock import Mock, patch
-from voice_referee.src.services.deepgram_stt import (
+from services.deepgram_stt import (
     DeepgramConfig,
     create_deepgram_stt,
     create_default_stt,
@@ -84,7 +84,7 @@ class TestDeepgramConfig:
 class TestCreateDeepgramSTT:
     """Test suite for create_deepgram_stt factory function."""
 
-    @patch('voice_referee.src.services.deepgram_stt.DiarizedDeepgramSTTService')
+    @patch('services.deepgram_stt.DiarizedDeepgramSTTService')
     def test_create_with_valid_config(self, mock_service_class):
         """Test service creation with valid configuration."""
         config = DeepgramConfig(api_key="test-key")
@@ -119,7 +119,7 @@ class TestCreateDeepgramSTT:
         with pytest.raises(ValueError):
             create_deepgram_stt(config)
 
-    @patch('voice_referee.src.services.deepgram_stt.DiarizedDeepgramSTTService')
+    @patch('services.deepgram_stt.DiarizedDeepgramSTTService')
     def test_create_logs_configuration(self, mock_service_class, caplog):
         """Test service creation logs configuration details."""
         config = DeepgramConfig(api_key="test-key")
@@ -137,7 +137,7 @@ class TestCreateDeepgramSTT:
 class TestCreateDefaultSTT:
     """Test suite for create_default_stt convenience function."""
 
-    @patch('voice_referee.src.services.deepgram_stt.create_deepgram_stt')
+    @patch('services.deepgram_stt.create_deepgram_stt')
     def test_create_default_uses_correct_config(self, mock_create):
         """Test default creation uses correct configuration."""
         mock_create.return_value = Mock()
@@ -157,7 +157,7 @@ class TestCreateDefaultSTT:
 class TestDiarizedDeepgramSTTService:
     """Test suite for DiarizedDeepgramSTTService."""
 
-    @patch('voice_referee.src.services.deepgram_stt.DeepgramSTTService.__init__')
+    @patch('services.deepgram_stt.DeepgramSTTService.__init__')
     def test_initialization(self, mock_super_init):
         """Test service initializes with statistics tracking."""
         mock_super_init.return_value = None
@@ -167,7 +167,7 @@ class TestDiarizedDeepgramSTTService:
         assert service._transcription_count == 0
         assert service._speaker_stats == {}
 
-    @patch('voice_referee.src.services.deepgram_stt.DeepgramSTTService.__init__')
+    @patch('services.deepgram_stt.DeepgramSTTService.__init__')
     def test_get_statistics(self, mock_super_init):
         """Test statistics retrieval."""
         mock_super_init.return_value = None
@@ -182,7 +182,7 @@ class TestDiarizedDeepgramSTTService:
         assert stats['speaker_counts'] == {0: 6, 1: 4}
         assert stats['unique_speakers'] == 2
 
-    @patch('voice_referee.src.services.deepgram_stt.DeepgramSTTService.__init__')
+    @patch('services.deepgram_stt.DeepgramSTTService.__init__')
     def test_log_statistics(self, mock_super_init, caplog):
         """Test statistics logging."""
         mock_super_init.return_value = None
@@ -212,7 +212,7 @@ class TestDiarizationCritical:
         with pytest.raises(ValueError, match="Diarization must be enabled"):
             create_deepgram_stt(config)
 
-    @patch('voice_referee.src.services.deepgram_stt.DiarizedDeepgramSTTService')
+    @patch('services.deepgram_stt.DiarizedDeepgramSTTService')
     def test_diarization_parameter_passed_to_service(self, mock_service_class):
         """CRITICAL: Verify diarization parameter is passed to service."""
         config = DeepgramConfig(api_key="test-key")

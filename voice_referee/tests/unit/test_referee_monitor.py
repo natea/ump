@@ -14,8 +14,8 @@ from pipecat.frames.frames import (
     UserStartedSpeakingFrame,
     UserStoppedSpeakingFrame,
     LLMMessagesFrame,
-    FrameDirection
 )
+from pipecat.processors.frame_processor import FrameDirection
 
 from processors.referee_monitor import RefereeMonitorProcessor
 from config.settings import ProcessorConfig
