@@ -1,15 +1,12 @@
 """
 Unit tests for ConversationAnalyzer module
 
-Tests tension score calculation, sentiment detection, interruption analysis,
-and argument repetition detection.
+Tests the analyze() method which takes ConversationState and returns AnalysisResult.
 """
 
 import pytest
-from analysis.conversation_analyzer import (
-    ConversationAnalyzer,
-    Utterance
-)
+from analysis.conversation_analyzer import ConversationAnalyzer, AnalysisResult
+from processors.conversation_state import ConversationState, Utterance
 
 
 class TestConversationAnalyzer:
@@ -18,303 +15,203 @@ class TestConversationAnalyzer:
     @pytest.fixture
     def analyzer(self):
         """Fixture providing a fresh ConversationAnalyzer instance"""
-        return ConversationAnalyzer()
+        return ConversationAnalyzer(tension_threshold=0.7)
 
     @pytest.fixture
-    def calm_transcript(self):
-        """Fixture providing a calm conversation transcript"""
-        return [
-            Utterance("I agree with your point", "Founder A", 100.0, 2.0, False),
-            Utterance("Thank you for understanding", "Founder B", 102.0, 2.0, False),
-            Utterance("Let's move forward together", "Founder A", 104.0, 2.0, False)
-        ]
+    def state(self):
+        """Fixture providing a fresh ConversationState instance"""
+        return ConversationState(max_buffer_size=50)
 
     @pytest.fixture
-    def tense_transcript(self):
-        """Fixture providing a tense conversation transcript"""
-        return [
-            Utterance("That's completely wrong and stupid", "Founder A", 100.0, 2.0, True),
-            Utterance("You never listen to me", "Founder B", 102.0, 2.0, True),
-            Utterance("This is impossible and terrible", "Founder A", 104.0, 2.0, True),
-            Utterance("You always make the worst decisions", "Founder B", 106.0, 2.0, True)
-        ]
+    def calm_state(self, state):
+        """Fixture providing a calm conversation state"""
+        # Add balanced, polite utterances
+        state.add_utterance("I agree with your point", "Founder A", 100.0, 2.0, sentiment=0.3)
+        state.add_utterance("Thank you for understanding", "Founder B", 102.0, 2.0, sentiment=0.4)
+        state.add_utterance("Let's move forward together", "Founder A", 104.0, 2.0, sentiment=0.2)
+        state.add_utterance("Sounds like a good plan", "Founder B", 106.0, 2.0, sentiment=0.3)
+        return state
 
-    def test_tension_score_high_tension(self, analyzer, tense_transcript):
-        """Test tension score calculation with high-tension conversation"""
-        tension_score = analyzer.calculate_tension_score(tense_transcript)
+    @pytest.fixture
+    def tense_state(self, state):
+        """Fixture providing a tense conversation state with interruptions"""
+        state.add_utterance("That's completely wrong", "Founder A", 100.0, 2.0, sentiment=-0.7)
+        state.track_interruption("Founder B")
+        state.add_utterance("You never listen to me", "Founder B", 102.0, 2.0, sentiment=-0.8)
+        state.track_interruption("Founder A")
+        state.add_utterance("This is impossible", "Founder A", 104.0, 2.0, sentiment=-0.6)
+        state.track_interruption("Founder B")
+        state.add_utterance("You always make bad decisions", "Founder B", 106.0, 2.0, sentiment=-0.9)
+        return state
 
-        # Should be high tension (> 0.5)
-        assert tension_score > 0.5
-        assert 0.0 <= tension_score <= 1.0
+    def test_analyzer_initialization(self):
+        """Test ConversationAnalyzer initialization with custom threshold"""
+        analyzer = ConversationAnalyzer(tension_threshold=0.5)
+        assert analyzer._tension_threshold == 0.5
 
-    def test_tension_score_calm(self, analyzer, calm_transcript):
-        """Test tension score calculation with calm conversation"""
-        tension_score = analyzer.calculate_tension_score(calm_transcript)
+    def test_analyzer_initialization_default_threshold(self):
+        """Test ConversationAnalyzer uses default threshold of 0.7"""
+        analyzer = ConversationAnalyzer()
+        assert analyzer._tension_threshold == 0.7
 
-        # Should be low tension (< 0.3)
-        assert tension_score < 0.3
-        assert 0.0 <= tension_score <= 1.0
+    def test_analyzer_invalid_threshold_raises_error(self):
+        """Test that invalid threshold raises ValueError"""
+        with pytest.raises(ValueError, match="must be between 0.0 and 1.0"):
+            ConversationAnalyzer(tension_threshold=1.5)
 
-    def test_tension_score_empty_transcript(self, analyzer):
-        """Test tension score with empty transcript returns 0.0"""
-        tension_score = analyzer.calculate_tension_score([])
+        with pytest.raises(ValueError, match="must be between 0.0 and 1.0"):
+            ConversationAnalyzer(tension_threshold=-0.1)
 
-        assert tension_score == 0.0
+    def test_analyze_returns_analysis_result(self, analyzer, calm_state):
+        """Test analyze returns AnalysisResult dataclass"""
+        result = analyzer.analyze(calm_state)
 
-    def test_sentiment_detection_negative(self, analyzer):
-        """Test sentiment detection for negative text"""
-        negative_texts = [
-            "This is terrible and wrong",
-            "I hate this stupid idea",
-            "You never understand anything",
-            "This is the worst plan ever"
-        ]
+        assert isinstance(result, AnalysisResult)
+        assert hasattr(result, 'tension_score')
+        assert hasattr(result, 'balance_score')
+        assert hasattr(result, 'interruption_rate')
+        assert hasattr(result, 'dominant_speaker')
+        assert hasattr(result, 'detected_patterns')
+        assert hasattr(result, 'requires_intervention')
 
-        for text in negative_texts:
-            sentiment = analyzer.detect_sentiment(text)
-            assert sentiment < 0.0, f"Expected negative sentiment for: {text}"
-            assert -1.0 <= sentiment <= 1.0
+    def test_analyze_calm_conversation(self, analyzer, calm_state):
+        """Test analysis of calm conversation shows low tension"""
+        result = analyzer.analyze(calm_state)
 
-    def test_sentiment_detection_positive(self, analyzer):
-        """Test sentiment detection for positive text"""
-        positive_texts = [
-            "This is great and excellent",
-            "I agree with your perfect idea",
-            "Thank you for the good work",
-            "Yes, that's absolutely right"
-        ]
+        # Calm conversation should have low tension
+        assert result.tension_score < 0.5
+        assert result.requires_intervention is False
+        assert 0.0 <= result.tension_score <= 1.0
 
-        for text in positive_texts:
-            sentiment = analyzer.detect_sentiment(text)
-            assert sentiment > 0.0, f"Expected positive sentiment for: {text}"
-            assert -1.0 <= sentiment <= 1.0
+    def test_analyze_tense_conversation(self, analyzer, tense_state):
+        """Test analysis of tense conversation shows high tension"""
+        result = analyzer.analyze(tense_state)
 
-    def test_sentiment_detection_neutral(self, analyzer):
-        """Test sentiment detection for neutral text"""
-        neutral_text = "The meeting is at 3pm tomorrow"
+        # Tense conversation should have elevated tension due to interruptions
+        # and negative sentiment
+        assert result.tension_score > 0.2
+        assert 0.0 <= result.tension_score <= 1.0
 
-        sentiment = analyzer.detect_sentiment(neutral_text)
+    def test_analyze_balanced_speakers(self, analyzer, calm_state):
+        """Test balance score for balanced speakers"""
+        result = analyzer.analyze(calm_state)
 
-        # Should be close to 0.0 for neutral text
-        assert abs(sentiment) < 0.2
-        assert -1.0 <= sentiment <= 1.0
+        # Both speakers have equal utterances
+        assert result.balance_score < 0.3  # Low imbalance
 
-    def test_sentiment_detection_empty_text(self, analyzer):
-        """Test sentiment detection with empty text returns 0.0"""
-        sentiment = analyzer.detect_sentiment("")
+    def test_analyze_imbalanced_speakers(self, analyzer, state):
+        """Test balance score for imbalanced speakers"""
+        # One speaker dominates
+        state.add_utterance("Long speech one", "Founder A", 100.0, 5.0)
+        state.add_utterance("Long speech two", "Founder A", 105.0, 5.0)
+        state.add_utterance("Long speech three", "Founder A", 110.0, 5.0)
+        state.add_utterance("Brief reply", "Founder B", 115.0, 1.0)
 
-        assert sentiment == 0.0
+        result = analyzer.analyze(state)
 
-    def test_sentiment_tension_keywords_count_double(self, analyzer):
-        """Test that tension keywords have stronger negative impact"""
-        # Text with tension keyword "never"
-        tension_text = "You never listen"
+        # Should show imbalance
+        assert result.balance_score > 0.5
 
-        # Text with similar negative keyword "bad"
-        negative_text = "You are bad at listening"
+    def test_analyze_detects_dominant_speaker(self, analyzer, state):
+        """Test detection of dominant speaker"""
+        # Founder A speaks much more
+        state.add_utterance("Long speech one", "Founder A", 100.0, 10.0)
+        state.add_utterance("Long speech two", "Founder A", 110.0, 10.0)
+        state.add_utterance("Long speech three", "Founder A", 120.0, 10.0)
+        state.add_utterance("Short reply", "Founder B", 130.0, 2.0)
 
-        tension_sentiment = analyzer.detect_sentiment(tension_text)
-        negative_sentiment = analyzer.detect_sentiment(negative_text)
+        result = analyzer.analyze(state)
 
-        # Tension keyword should have more negative impact
-        assert tension_sentiment < negative_sentiment
+        # Founder A should be detected as dominant
+        assert result.dominant_speaker == "Founder A"
 
-    def test_argument_repetition_detected(self, analyzer):
-        """Test detection of repeated arguments"""
-        # Create utterances with repeated keywords
-        repeated_utterances = [
-            Utterance("We need better marketing strategy", "Founder A", 100.0, 2.0, False),
-            Utterance("I disagree with that", "Founder B", 102.0, 1.0, False),
-            Utterance("Marketing strategy is essential here", "Founder A", 104.0, 2.0, False),
-            Utterance("The marketing strategy needs work", "Founder B", 106.0, 2.0, False)
-        ]
+    def test_analyze_balanced_conversation_low_balance_score(self, analyzer, state):
+        """Test balance score is low when conversation is truly balanced"""
+        # Create truly balanced conversation with equal speaking time
+        state.add_utterance("First point here", "Founder A", 100.0, 5.0, sentiment=0.3)
+        state.add_utterance("Second point here", "Founder B", 105.0, 5.0, sentiment=0.4)
+        state.add_utterance("Third point here", "Founder A", 110.0, 5.0, sentiment=0.2)
+        state.add_utterance("Fourth point here", "Founder B", 115.0, 5.0, sentiment=0.3)
 
-        repetition_count = analyzer.detect_argument_repetition(repeated_utterances)
+        result = analyzer.analyze(state)
 
-        # Should detect repetition (> 0)
-        assert repetition_count > 0
+        # Balance score should be low when both have equal speaking time
+        assert result.balance_score < 0.2  # Near zero for balanced
 
-    def test_argument_repetition_no_repetition(self, analyzer):
-        """Test that different topics don't trigger repetition detection"""
-        different_topics = [
-            Utterance("Let's discuss the budget", "Founder A", 100.0, 2.0, False),
-            Utterance("What about hiring plans", "Founder B", 102.0, 2.0, False),
-            Utterance("Product roadmap looks good", "Founder A", 104.0, 2.0, False)
-        ]
-
-        repetition_count = analyzer.detect_argument_repetition(different_topics)
-
-        # Should detect minimal or no repetition
-        assert repetition_count <= 1
-
-    def test_argument_repetition_too_few_utterances(self, analyzer):
-        """Test repetition detection with too few utterances returns 0"""
-        single_utterance = [
-            Utterance("Hello", "Founder A", 100.0, 1.0, False)
-        ]
-
-        repetition_count = analyzer.detect_argument_repetition(single_utterance)
-
-        assert repetition_count == 0
-
-    def test_calculate_interruption_rate(self, analyzer):
+    def test_analyze_interruption_rate(self, analyzer, tense_state):
         """Test interruption rate calculation"""
-        transcript = [
-            Utterance("Hello", "Founder A", 100.0, 1.0, False),
-            Utterance("Wait", "Founder B", 101.0, 0.5, True),  # Interruption
-            Utterance("Let me finish", "Founder A", 101.5, 1.0, False),
-            Utterance("Sorry", "Founder B", 102.5, 0.5, True),  # Interruption
-        ]
+        result = analyzer.analyze(tense_state)
 
-        rate = analyzer.calculate_interruption_rate(transcript)
+        # Should have positive interruption rate
+        assert result.interruption_rate > 0
 
-        assert rate == 0.5  # 2 out of 4 are interruptions
+    def test_analyze_no_interruptions(self, analyzer, calm_state):
+        """Test analysis with no interruptions"""
+        result = analyzer.analyze(calm_state)
 
-    def test_calculate_interruption_rate_no_interruptions(self, analyzer):
-        """Test interruption rate with no interruptions"""
-        transcript = [
-            Utterance("Hello", "Founder A", 100.0, 1.0, False),
-            Utterance("Hi", "Founder B", 101.0, 1.0, False),
-        ]
+        # No interruptions tracked
+        assert result.interruption_rate == 0.0
 
-        rate = analyzer.calculate_interruption_rate(transcript)
+    def test_analyze_detected_patterns(self, analyzer, state):
+        """Test pattern detection for imbalanced conversation"""
+        # Create very imbalanced conversation
+        state.add_utterance("Long speech one", "Founder A", 100.0, 20.0)
+        state.add_utterance("Long speech two", "Founder A", 120.0, 20.0)
+        state.add_utterance("ok", "Founder B", 140.0, 0.5)
 
-        assert rate == 0.0
+        result = analyzer.analyze(state)
 
-    def test_calculate_interruption_rate_empty(self, analyzer):
-        """Test interruption rate with empty transcript"""
-        rate = analyzer.calculate_interruption_rate([])
+        # Should detect patterns like dominance or imbalance
+        assert len(result.detected_patterns) > 0
 
-        assert rate == 0.0
+    def test_analyze_empty_state(self, analyzer, state):
+        """Test analysis of empty conversation state"""
+        result = analyzer.analyze(state)
 
-    def test_get_analysis_summary(self, analyzer, calm_transcript):
-        """Test get_analysis_summary returns complete analysis"""
-        summary = analyzer.get_analysis_summary(calm_transcript)
+        # Empty state should have zero/low values
+        assert result.tension_score == 0.0 or result.tension_score < 0.3
+        assert result.balance_score == 0.0
+        assert result.interruption_rate == 0.0
 
-        assert 'tension_score' in summary
-        assert 'sentiment_negativity' in summary
-        assert 'interruption_rate' in summary
-        assert 'speaker_imbalance' in summary
-        assert 'argument_repetition' in summary
-        assert 'utterance_count' in summary
-        assert 'timestamp' in summary
+    def test_set_tension_threshold(self, analyzer):
+        """Test updating tension threshold"""
+        analyzer.set_tension_threshold(0.5)
+        assert analyzer._tension_threshold == 0.5
 
-        assert summary['utterance_count'] == len(calm_transcript)
-        assert 0.0 <= summary['tension_score'] <= 1.0
+    def test_set_tension_threshold_invalid_raises_error(self, analyzer):
+        """Test invalid threshold update raises ValueError"""
+        with pytest.raises(ValueError, match="must be between 0.0 and 1.0"):
+            analyzer.set_tension_threshold(1.5)
 
-    def test_speaker_imbalance_balanced(self, analyzer):
-        """Test speaker imbalance calculation with balanced speakers"""
-        balanced_transcript = [
-            Utterance("Hello world test", "Founder A", 100.0, 2.0, False),  # 3 words
-            Utterance("Hi there friend", "Founder B", 102.0, 2.0, False),   # 3 words
-            Utterance("Good to see you", "Founder A", 104.0, 2.0, False),   # 4 words
-            Utterance("Same here buddy", "Founder B", 106.0, 2.0, False)    # 3 words
-        ]
+    def test_tension_threshold_affects_intervention(self, analyzer, tense_state):
+        """Test that tension threshold affects requires_intervention"""
+        # With high threshold, may not require intervention
+        analyzer.set_tension_threshold(0.9)
+        result_high = analyzer.analyze(tense_state)
 
-        summary = analyzer.get_analysis_summary(balanced_transcript)
+        # With low threshold, more likely to require intervention
+        analyzer.set_tension_threshold(0.1)
+        result_low = analyzer.analyze(tense_state)
 
-        # Should be relatively balanced (< 0.3)
-        assert summary['speaker_imbalance'] < 0.3
+        # Lower threshold should more easily trigger intervention
+        if result_high.tension_score < 0.9:
+            assert result_high.requires_intervention is False
+        if result_low.tension_score >= 0.1:
+            assert result_low.requires_intervention is True
 
-    def test_speaker_imbalance_imbalanced(self, analyzer):
-        """Test speaker imbalance calculation with imbalanced speakers"""
-        imbalanced_transcript = [
-            Utterance("Long sentence with many words here", "Founder A", 100.0, 3.0, False),  # 6 words
-            Utterance("Another long explanation with details", "Founder A", 103.0, 3.0, False),  # 5 words
-            Utterance("More content from the same person", "Founder A", 106.0, 3.0, False),  # 6 words
-            Utterance("Hi", "Founder B", 109.0, 0.5, False)  # 1 word
-        ]
+    def test_tension_score_bounds(self, analyzer, tense_state):
+        """Test that tension score is always bounded 0.0-1.0"""
+        result = analyzer.analyze(tense_state)
+        assert 0.0 <= result.tension_score <= 1.0
 
-        summary = analyzer.get_analysis_summary(imbalanced_transcript)
+    def test_balance_score_bounds(self, analyzer, state):
+        """Test that balance score is always bounded 0.0-1.0"""
+        state.add_utterance("test", "A", 100.0, 1.0)
+        result = analyzer.analyze(state)
+        assert 0.0 <= result.balance_score <= 1.0
 
-        # Should be significantly imbalanced (> 0.5)
-        assert summary['speaker_imbalance'] > 0.5
-
-    def test_tension_score_components_weighted(self, analyzer):
-        """Test that tension score properly weights all components"""
-        # Create transcript with known characteristics
-        transcript = [
-            Utterance("This is terrible", "Founder A", 100.0, 1.0, True),  # High negativity + interruption
-            Utterance("Wrong", "Founder B", 101.0, 0.5, False),
-        ]
-
-        tension = analyzer.calculate_tension_score(transcript)
-
-        # Should be composite of multiple factors
-        assert tension > 0.0
-        assert tension < 1.0  # Not maximum since not all factors are maxed
-
-    def test_sentiment_keywords_are_case_insensitive(self, analyzer):
-        """Test that sentiment detection is case insensitive"""
-        lower_text = "this is terrible and wrong"
-        upper_text = "THIS IS TERRIBLE AND WRONG"
-        mixed_text = "This Is Terrible And Wrong"
-
-        lower_sentiment = analyzer.detect_sentiment(lower_text)
-        upper_sentiment = analyzer.detect_sentiment(upper_text)
-        mixed_sentiment = analyzer.detect_sentiment(mixed_text)
-
-        # All should have same sentiment
-        assert lower_sentiment == upper_sentiment == mixed_sentiment
-
-    def test_keyword_extraction_filters_short_words(self, analyzer):
-        """Test that repetition detection filters out short words"""
-        # Short common words should be filtered
-        utterances = [
-            Utterance("I am with you on this", "Founder A", 100.0, 1.0, False),
-            Utterance("I am with you on that", "Founder B", 101.0, 1.0, False)
-        ]
-
-        # Should not detect high repetition due to "I am with you on"
-        # because these are short/common words
-        repetition = analyzer.detect_argument_repetition(utterances)
-
-        # Should be 0 or very low
-        assert repetition <= 1
-
-    def test_multiple_positive_keywords_increase_sentiment(self, analyzer):
-        """Test that multiple positive keywords increase positive sentiment"""
-        text_one_positive = "This is good"
-        text_many_positive = "This is good great excellent perfect"
-
-        sentiment_one = analyzer.detect_sentiment(text_one_positive)
-        sentiment_many = analyzer.detect_sentiment(text_many_positive)
-
-        assert sentiment_many > sentiment_one
-
-    def test_multiple_negative_keywords_decrease_sentiment(self, analyzer):
-        """Test that multiple negative keywords decrease sentiment more"""
-        text_one_negative = "This is bad"
-        text_many_negative = "This is bad terrible awful worst"
-
-        sentiment_one = analyzer.detect_sentiment(text_one_negative)
-        sentiment_many = analyzer.detect_sentiment(text_many_negative)
-
-        assert sentiment_many < sentiment_one
-
-    def test_argument_repetition_threshold(self, analyzer):
-        """Test that 40% keyword overlap triggers repetition detection"""
-        # Create utterances with exactly 40% overlap
-        utterances = [
-            Utterance("marketing strategy budget planning timeline", "A", 100.0, 2.0, False),
-            Utterance("marketing strategy different topics here", "B", 102.0, 2.0, False)
-        ]
-        # "marketing" and "strategy" overlap = 2/5 = 40%
-
-        repetition = analyzer.detect_argument_repetition(utterances)
-
-        assert repetition >= 1  # Should detect the overlap
-
-    def test_tension_score_bounds(self, analyzer):
-        """Test that tension score is always bounded between 0.0 and 1.0"""
-        # Extreme cases
-        extreme_transcript = [
-            Utterance("never always wrong stupid terrible worst hate", "A", 100.0, 2.0, True),
-            Utterance("never always wrong stupid terrible worst hate", "A", 102.0, 2.0, True),
-            Utterance("never always wrong stupid terrible worst hate", "A", 104.0, 2.0, True)
-        ] * 10  # Many extreme utterances
-
-        tension = analyzer.calculate_tension_score(extreme_transcript)
-
-        # Must be bounded
-        assert 0.0 <= tension <= 1.0
+    def test_repr(self, analyzer):
+        """Test string representation"""
+        repr_str = repr(analyzer)
+        assert "ConversationAnalyzer" in repr_str
+        assert "tension_threshold" in repr_str

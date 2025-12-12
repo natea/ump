@@ -97,7 +97,7 @@ class TestSpeakerMapper:
         with pytest.raises(ValueError) as exc_info:
             mapper.assign_identity(2)
 
-        assert "All 2 founder names already assigned" in str(exc_info.value)
+        assert "All 2 names already assigned" in str(exc_info.value)
 
     def test_get_all_mappings(self):
         """Test get_all_mappings returns correct dictionary"""
@@ -175,7 +175,7 @@ class TestSpeakerMapper:
 
         # Empty list triggers default assignment
         # The `or` operator in __init__ causes [] to use defaults
-        assert mapper._founder_names == ["Founder A", "Founder B"]
+        assert mapper._fallback_names == ["Founder A", "Founder B"]
 
         # Assignment should work with defaults
         identity = mapper.assign_identity(0)
