@@ -271,3 +271,221 @@ LOG_LEVEL=INFO
 3. **Performance Profiling** - Measure actual latency against 500-730ms target
 4. **Edge Case Testing** - Single speaker, rapid switching, background noise
 5. **Production Deployment** - Docker container, monitoring setup
+
+---
+
+## Future Feature Requests
+
+### Authentication & User Management
+
+#### FR-1: Login and Registration System
+**Priority**: High | **Complexity**: Medium
+
+Implement user authentication. Choose between:
+- **Supabase Auth** - Open source, PostgreSQL-based, includes Row Level Security
+- **Clerk** - Managed service, better prebuilt UI components
+
+Requirements:
+- Email/password registration with verification
+- Password reset flow
+- Social login (Google, GitHub)
+- Session management
+- Protected API endpoints
+
+---
+
+#### FR-2: Invite System for Second Participant
+**Priority**: High | **Complexity**: Medium
+
+Allow session initiator to invite co-founder via:
+- Unique join codes/links (`voicereferee.com/join/ABC123`)
+- Email invites sent from platform
+- SMS invites (via Twilio)
+- Copy-to-clipboard for manual sharing
+
+Features:
+- Time-limited invites (24-48 hours)
+- Prevent reuse after session starts
+- Track invite status (pending/accepted)
+
+---
+
+### Monetization & Growth
+
+#### FR-3: Stripe Subscription Pricing
+**Priority**: High | **Complexity**: High
+
+Implement subscription model:
+- **Free Tier**: 1 teaser session (15-30 min), no CC required
+- **Pro Tier** ($X/month): X sessions/month, full length, recordings
+- **Enterprise**: Unlimited, team accounts, custom integrations
+
+Features:
+- Stripe Checkout integration
+- Customer portal for subscription management
+- Webhook handling for subscription events
+- Usage tracking and enforcement
+- Failed payment handling
+
+---
+
+#### FR-4: Referral System
+**Priority**: Medium | **Complexity**: Medium
+
+"Invite a friend, both get a free session"
+
+Mechanics:
+- Unique referral links per user (`voicereferee.com/r/USERCODE`)
+- Credit awarded when referee completes first session
+- Dashboard showing referral status
+- Anti-fraud measures (prevent self-referral)
+
+---
+
+### Communication Channels
+
+#### FR-5: Twilio Phone Integration
+**Priority**: Medium | **Complexity**: High
+
+Enable mediation via phone calls:
+- System calls both participants
+- Bridges calls into conference with AI mediator
+- No computer/app required
+
+Technical options:
+- Twilio Conference + Daily.co bridge
+- Pipecat's Twilio transport directly
+
+Considerations:
+- Call status tracking (ringing, answered, disconnected)
+- Cost tracking (~$0.013/min US, varies internationally)
+
+---
+
+#### FR-6: Calendar Scheduling with Google Calendar
+**Priority**: Medium | **Complexity**: High
+
+Integrate with co-founders' Google Calendars:
+- OAuth connection to both calendars
+- Analyze free/busy across both participants
+- Suggest optimal meeting times
+- Book recurring sessions (weekly, bi-weekly)
+- Create events with join links
+- Send reminders before sessions
+
+Technical options:
+- Direct Google Calendar API
+- [Composio](https://composio.dev/) for simplified OAuth/integration
+
+---
+
+### AI & Analysis Enhancements
+
+#### FR-7: Video Emotion Detection
+**Priority**: Low | **Complexity**: High
+
+Add visual sentiment analysis from video:
+- Detect anger, contempt, disgust, fear, sadness, disengagement
+- Supplement audio tension scoring
+- Real-time processing (< 500ms latency)
+
+Reference implementations:
+- https://dev.to/blockopensource/why-i-used-goose-to-build-a-chaotic-emotion-detection-app-3979
+- https://github.com/blackgirlbytes/chaotic-emotion-detector
+
+Technical options:
+- Browser-based: TensorFlow.js + face-api.js (privacy-friendly)
+- Server-side: Python fer/deepface (more accurate)
+
+Integration:
+```python
+tension_score = weighted_sum(
+    audio_sentiment * 0.25,
+    interruption_rate * 0.25,
+    speaker_imbalance * 0.15,
+    argument_repetition * 0.15,
+    facial_emotion_negativity * 0.20  # NEW
+)
+```
+
+---
+
+#### FR-8: HeyGen Video Avatar for AI Mediator
+**Priority**: Low | **Complexity**: Medium
+
+Give the AI referee a visual body using HeyGen's streaming avatar:
+- Real-time lip-sync to TTS output
+- Professional mediator appearance
+- Non-verbal communication cues
+
+Reference implementation:
+- https://github.com/pipecat-ai/pipecat/blob/main/examples/foundational/43a-heygen-video-service.py
+
+Integration with existing pipeline:
+```
+LLM Response → ElevenLabs TTS → HeyGen Avatar → Daily.co Video Output
+```
+
+Considerations:
+- Additional latency from avatar rendering
+- HeyGen API costs
+- User preference (some may prefer audio-only)
+
+---
+
+### Personalization
+
+#### FR-9: Voice Selection (Male/Female)
+**Priority**: Medium | **Complexity**: Low
+
+Allow users to choose AI mediator voice:
+- Preview samples before selection
+- Male and female options
+- Remember preference for future sessions
+
+Recommended voices:
+- Female: Rachel (calm, professional), Domi (neutral), Bella (warm)
+- Male: Adam (professional), Antoni (trustworthy), Josh (clear)
+
+---
+
+#### FR-10: Multi-Language Support & Translation
+**Priority**: Medium | **Complexity**: Very High
+
+Support sessions in multiple languages:
+
+**Same language (non-English):**
+Both speak Spanish → Session in Spanish
+
+**Translation mode:**
+Founder A (English) ↔ Founder B (Mandarin):
+- Each hears the other translated
+- AI speaks to each in their language
+
+Initial languages: English, Spanish, French, German, Portuguese, Mandarin, Japanese, Korean, Italian, Dutch
+
+Considerations:
+- Translation adds 200-400ms latency
+- Additional API costs (Google/DeepL ~$20-25/1M chars)
+- Cultural adaptation of mediation style
+
+---
+
+### Feature Request Status Legend
+- ⬜ Not Started
+- 📋 Specified
+- 🔄 In Development
+- ✅ Completed
+
+| ID | Feature | Priority | Status |
+|----|---------|----------|--------|
+| FR-1 | Login/Registration | High | ⬜ |
+| FR-2 | Invite System | High | ⬜ |
+| FR-3 | Stripe Pricing | High | ⬜ |
+| FR-4 | Referral System | Medium | ⬜ |
+| FR-5 | Twilio Phone | Medium | ⬜ |
+| FR-6 | Calendar Scheduling | Medium | ⬜ |
+| FR-7 | Video Emotion Detection | Low | ⬜ |
+| FR-8 | HeyGen Avatar | Low | ⬜ |
+| FR-9 | Voice Selection | Medium | ⬜ |
+| FR-10 | Multi-Language | Medium | ⬜ |
