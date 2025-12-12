@@ -1,0 +1,12 @@
+pipecat-ai[silero,daily,deepgram,anthropic,elevenlabs]>=0.0.42
+daily-python>=0.10.1
+deepgram-sdk>=3.2.7
+anthropic>=0.18.1
+elevenlabs>=0.2.27
+torch>=2.1.0
+pydantic>=2.6.1
+pydantic-settings>=2.0.0
+python-dotenv>=1.0.1
+pytest>=8.0.0
+pytest-asyncio>=0.23.5
+onnxruntime>=1.16.0
