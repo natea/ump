@@ -183,11 +183,11 @@ async def run_referee(settings: Optional[Settings] = None) -> None:
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    # Introduction message for the referee
-    REFEREE_INTRODUCTION = """Hello, I'm the ump.ai referee. Welcome to your mediation session.
-I'll be monitoring our conversation to ensure productive dialogue.
-Please remember our four protocols: No interruptions. Data over opinion. Stay future focused. And commit to a binary outcome.
-When you're ready, please begin your discussion."""
+    # Introduction message for the referee (matches the OPENING from the system prompt)
+    REFEREE_INTRODUCTION = """Hi, I'm your AI mediator—completely neutral, here to help you work through this.
+Founders, are you both here?
+Quick ground rules: one at a time, stay respectful, focus on understanding.
+Let's start—what's the situation?"""
 
     try:
         # Run the pipeline
