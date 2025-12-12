@@ -11,6 +11,10 @@ from pathlib import Path
 voice_referee_parent = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(voice_referee_parent))
 
+# Add voice_referee directory for imports like: from src.processors import ...
+voice_referee_path = Path(__file__).parent.parent
+sys.path.insert(0, str(voice_referee_path))
+
 # Also add src directory for direct imports like: from analysis import ...
 src_path = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_path))

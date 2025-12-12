@@ -18,11 +18,11 @@ from pipecat.frames.frames import (
 )
 from pipecat.processors.frame_processor import FrameProcessor, FrameDirection
 
-from processors.speaker_mapper import SpeakerMapper
-from processors.conversation_state import ConversationState
-from analysis.conversation_analyzer import ConversationAnalyzer
-from decision.intervention_decider import InterventionDecider
-from config.settings import ProcessorConfig
+from src.processors.speaker_mapper import SpeakerMapper
+from src.processors.conversation_state import ConversationState
+from src.analysis.conversation_analyzer import ConversationAnalyzer
+from src.decision.intervention_decider import InterventionDecider
+from src.config.settings import ProcessorConfig
 
 logger = logging.getLogger(__name__)
 
