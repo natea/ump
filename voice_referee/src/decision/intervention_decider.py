@@ -9,8 +9,8 @@ from typing import Optional
 import time
 import logging
 
-from ..analysis.conversation_analyzer import AnalysisResult
-from ..processors.conversation_state import ConversationState
+from analysis.conversation_analyzer import AnalysisResult
+from processors.conversation_state import ConversationState
 
 logger = logging.getLogger(__name__)
 

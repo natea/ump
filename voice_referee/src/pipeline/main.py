@@ -20,13 +20,13 @@ from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
 from pipecat.frames.frames import TTSSpeakFrame
 
-from ..config.settings import Settings, get_settings, TTSConfig
-from ..config.daily_config import DailyConfig
-from ..processors.referee_monitor import RefereeMonitorProcessor
-from ..services.daily_transport import create_daily_transport
-from ..services.deepgram_stt import create_deepgram_stt, DeepgramConfig
-from ..services.llm_service import create_llm_service, LLMConfig
-from ..services.tts_service import create_tts_service
+from config.settings import Settings, get_settings, TTSConfig
+from config.daily_config import DailyConfig
+from processors.referee_monitor import RefereeMonitorProcessor
+from services.daily_transport import create_daily_transport
+from services.deepgram_stt import create_deepgram_stt, DeepgramConfig
+from services.llm_service import create_llm_service, LLMConfig
+from services.tts_service import create_tts_service
 
 logger = logging.getLogger(__name__)
 

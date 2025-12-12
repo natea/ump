@@ -10,7 +10,7 @@ from typing import Optional
 
 from pipecat.services.elevenlabs import ElevenLabsTTSService
 
-from ..config import TTSConfig
+from config import TTSConfig
 
 logger = logging.getLogger(__name__)
 

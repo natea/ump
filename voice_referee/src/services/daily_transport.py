@@ -10,7 +10,7 @@ from typing import Callable, Optional
 from pipecat.transports.services.daily import DailyTransport, DailyParams
 from pipecat.audio.vad.silero import SileroVADAnalyzer
 
-from ..config import DailyConfig
+from config import DailyConfig
 
 logger = logging.getLogger(__name__)
 

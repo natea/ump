@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 import logging
 
-from ..processors.conversation_state import ConversationState, Utterance
+from processors.conversation_state import ConversationState, Utterance
 
 logger = logging.getLogger(__name__)
 
