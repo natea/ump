@@ -15,7 +15,6 @@ from pipecat.frames.frames import (
     LLMMessagesFrame,
     UserStartedSpeakingFrame,
     UserStoppedSpeakingFrame,
-    TextFrame
 )
 from pipecat.processors.frame_processor import FrameProcessor, FrameDirection
 
@@ -255,6 +254,29 @@ When you intervene, keep your message concise (2-3 sentences) and supportive."""
     def get_stats(self) -> dict:
         """Get comprehensive conversation statistics."""
         return self._conversation_state.get_stats()
+
+    def register_participant(self, participant_id: str, user_name: str) -> None:
+        """
+        Register a participant from Daily.co when they join the room.
+
+        This allows the referee to use actual participant names instead of
+        generic "Founder A"/"Founder B" labels.
+
+        Args:
+            participant_id: Daily participant ID
+            user_name: Display name set by the participant when joining
+        """
+        self._speaker_mapper.register_participant(participant_id, user_name)
+
+    def unregister_participant(self, participant_id: str, user_name: str) -> None:
+        """
+        Unregister a participant when they leave the room.
+
+        Args:
+            participant_id: Daily participant ID
+            user_name: Display name of the participant
+        """
+        self._speaker_mapper.unregister_participant(participant_id, user_name)
 
     def reset(self):
         """Reset all components for a new session."""

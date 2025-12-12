@@ -5,7 +5,7 @@ using Daily.co WebRTC infrastructure with Voice Activity Detection.
 """
 
 import logging
-from typing import Optional
+from typing import Callable, Optional
 
 from pipecat.transports.services.daily import DailyTransport, DailyParams
 from pipecat.audio.vad.silero import SileroVADAnalyzer
@@ -14,12 +14,18 @@ from ..config import DailyConfig
 
 logger = logging.getLogger(__name__)
 
+# Type for participant callback: (participant_id, user_name) -> None
+ParticipantCallback = Callable[[str, str], None]
+
 
 class VoiceRefereeTransport:
     """Voice Referee Daily.co transport wrapper with event handling.
 
     This class wraps the DailyTransport and provides additional functionality
     for participant tracking, connection monitoring, and event logging.
+
+    Supports callbacks for participant join/leave events to enable
+    speaker name mapping in the referee monitor.
     """
 
     def __init__(self, transport: DailyTransport, config: DailyConfig):
@@ -34,67 +40,84 @@ class VoiceRefereeTransport:
         self._participants = {}
         self._is_connected = False
 
-        # Register event handlers
+        # Callbacks for participant events
+        self._on_participant_joined_callback: Optional[ParticipantCallback] = None
+        self._on_participant_left_callback: Optional[ParticipantCallback] = None
+
+        # Register event handlers on the transport
         self._setup_event_handlers()
 
+    def set_participant_callbacks(
+        self,
+        on_joined: Optional[ParticipantCallback] = None,
+        on_left: Optional[ParticipantCallback] = None
+    ) -> None:
+        """Set callbacks for participant join/leave events.
+
+        Args:
+            on_joined: Callback when participant joins (participant_id, user_name)
+            on_left: Callback when participant leaves (participant_id, user_name)
+        """
+        self._on_participant_joined_callback = on_joined
+        self._on_participant_left_callback = on_left
+        logger.info("Participant callbacks registered")
+
     def _setup_event_handlers(self):
-        """Set up event handlers for Daily.co events."""
-        # Note: Event handler setup will be implemented based on
-        # pipecat's DailyTransport API for handling:
-        # - participant-joined
-        # - participant-left
-        # - participant-updated
-        # - track-started
-        # - track-stopped
-        # - error events
-        logger.info("Event handlers configured for Daily transport")
+        """Set up event handlers for Daily.co events using Pipecat's decorator."""
+        logger.info("Setting up Daily transport event handlers...")
 
-    def _on_participant_joined(self, participant_id: str, participant_info: dict):
-        """Handle participant join event.
+        @self._transport.event_handler("on_participant_joined")
+        async def handle_participant_joined(transport, participant):
+            """Handle participant join event from Daily."""
+            participant_id = participant.get("id", "unknown")
+            user_name = participant.get("info", {}).get("userName", "") or participant.get("user_name", "Unknown")
 
-        Args:
-            participant_id: Unique identifier for the participant
-            participant_info: Dictionary containing participant metadata
-        """
-        self._participants[participant_id] = participant_info
-        logger.info(
-            f"Participant joined: {participant_id}",
-            extra={
-                "participant_id": participant_id,
-                "participant_name": participant_info.get("user_name", "Unknown"),
-                "total_participants": len(self._participants)
+            logger.info(f"👤 Participant joined: {user_name} (ID: {participant_id})")
+            logger.debug(f"Participant data: {participant}")
+
+            self._participants[participant_id] = {
+                "user_name": user_name,
+                "info": participant
             }
-        )
 
-    def _on_participant_left(self, participant_id: str, reason: Optional[str] = None):
-        """Handle participant leave event.
+            # Call the external callback if set
+            if self._on_participant_joined_callback:
+                self._on_participant_joined_callback(participant_id, user_name)
 
-        Args:
-            participant_id: Unique identifier for the participant
-            reason: Optional reason for leaving
+        @self._transport.event_handler("on_participant_left")
+        async def handle_participant_left(transport, participant, reason):
+            """Handle participant leave event from Daily."""
+            participant_id = participant.get("id", "unknown")
+            user_name = participant.get("info", {}).get("userName", "") or participant.get("user_name", "Unknown")
+
+            logger.info(f"👤 Participant left: {user_name} (reason: {reason})")
+
+            self._participants.pop(participant_id, None)
+
+            # Call the external callback if set
+            if self._on_participant_left_callback:
+                self._on_participant_left_callback(participant_id, user_name)
+
+        @self._transport.event_handler("on_first_participant_joined")
+        async def handle_first_participant(transport, participant):
+            """Handle first participant joining - enable transcription capture."""
+            participant_id = participant.get("id", "unknown")
+            user_name = participant.get("info", {}).get("userName", "") or participant.get("user_name", "Unknown")
+
+            logger.info(f"🎉 First participant joined: {user_name}")
+
+            # Capture transcription for this participant
+            await transport.capture_participant_transcription(participant_id)
+
+        logger.info("Daily transport event handlers configured")
+
+    def get_participants(self) -> dict:
+        """Get current participants in the room.
+
+        Returns:
+            Dictionary of participant_id -> participant info
         """
-        participant_info = self._participants.pop(participant_id, {})
-        logger.info(
-            f"Participant left: {participant_id}",
-            extra={
-                "participant_id": participant_id,
-                "participant_name": participant_info.get("user_name", "Unknown"),
-                "reason": reason,
-                "remaining_participants": len(self._participants)
-            }
-        )
-
-    def _on_error(self, error: Exception):
-        """Handle transport error.
-
-        Args:
-            error: Exception that occurred
-        """
-        logger.error(
-            f"Daily transport error: {error}",
-            extra={"error_type": type(error).__name__},
-            exc_info=True
-        )
+        return self._participants.copy()
 
     @property
     def transport(self) -> DailyTransport:

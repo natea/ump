@@ -89,6 +89,14 @@ def create_pipeline(settings: Settings) -> tuple[Pipeline, PipelineTask]:
     logger.info("Initializing Referee Monitor processor...")
     referee_monitor = RefereeMonitorProcessor(settings)
 
+    # Wire up participant events from Daily to the referee monitor
+    # This allows the referee to use actual participant names instead of "Founder A"/"Founder B"
+    transport.set_participant_callbacks(
+        on_joined=referee_monitor.register_participant,
+        on_left=referee_monitor.unregister_participant
+    )
+    logger.info("Participant callbacks wired to referee monitor")
+
     # Create LLM service (Anthropic Claude)
     logger.info("Initializing Anthropic LLM service...")
     llm_service = create_llm_service(llm_config)

@@ -1,11 +1,13 @@
 """
 Speaker Mapper Module
 
-Maps Deepgram speaker IDs (0, 1, 2, ...) to founder names.
+Maps Deepgram speaker IDs (0, 1, 2, ...) to participant names.
 Maintains persistent mapping throughout the session.
+
+Supports dynamic participant registration from Daily.co events.
 """
 
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 import logging
 
 logger = logging.getLogger(__name__)
@@ -13,16 +15,20 @@ logger = logging.getLogger(__name__)
 
 class SpeakerMapper:
     """
-    Maps Deepgram speaker IDs to founder identities.
+    Maps Deepgram speaker IDs to participant identities.
 
-    The first speaker detected is assigned "Founder A" (or custom name from config).
-    The second speaker detected is assigned "Founder B".
-    Mapping persists throughout the session.
+    Supports two modes:
+    1. Dynamic: Participants register when they join Daily room (preferred)
+    2. Fallback: Assigns generic names ("Founder A", "Founder B") if no participants registered
+
+    The mapping between Deepgram speaker IDs and participant names is established
+    based on speaking order - the first speaker detected gets the first registered name.
 
     Attributes:
-        _speaker_map: Dictionary mapping speaker IDs to founder names
-        _founder_names: List of founder names to assign (default: ["Founder A", "Founder B"])
-        _next_assignment_index: Index of next founder name to assign
+        _speaker_map: Dictionary mapping speaker IDs to participant names
+        _participant_names: List of participant names (from Daily join events)
+        _fallback_names: Default names if no participants registered
+        _next_assignment_index: Index of next name to assign
     """
 
     def __init__(self, founder_names: Optional[list[str]] = None):
@@ -30,47 +36,105 @@ class SpeakerMapper:
         Initialize the SpeakerMapper.
 
         Args:
-            founder_names: Optional list of founder names. Defaults to ["Founder A", "Founder B"]
+            founder_names: Optional list of fallback names. Defaults to ["Founder A", "Founder B"]
         """
         self._speaker_map: Dict[int, str] = {}
-        self._founder_names = founder_names or ["Founder A", "Founder B"]
+        self._participant_names: List[str] = []  # Names from Daily participant events
+        self._fallback_names = founder_names or ["Founder A", "Founder B"]
         self._next_assignment_index = 0
 
-        logger.info(f"SpeakerMapper initialized with founder names: {self._founder_names}")
+        logger.info(f"SpeakerMapper initialized with fallback names: {self._fallback_names}")
+
+    def register_participant(self, participant_id: str, user_name: str) -> None:
+        """
+        Register a participant from Daily.co when they join the room.
+
+        Called when a participant joins the Daily room. The user_name is the
+        display name they set when joining.
+
+        Args:
+            participant_id: Daily participant ID (session_id)
+            user_name: Display name set by the participant
+        """
+        # Don't register the bot itself
+        if "referee" in user_name.lower() or "bot" in user_name.lower():
+            logger.debug(f"Skipping bot registration: {user_name}")
+            return
+
+        # Don't register duplicates
+        if user_name in self._participant_names:
+            logger.debug(f"Participant already registered: {user_name}")
+            return
+
+        self._participant_names.append(user_name)
+        logger.info(f"📝 Registered participant: {user_name} (Daily ID: {participant_id})")
+        logger.info(f"Current participants: {self._participant_names}")
+
+    def unregister_participant(self, participant_id: str, user_name: str) -> None:
+        """
+        Remove a participant when they leave the room.
+
+        Args:
+            participant_id: Daily participant ID
+            user_name: Display name of the participant
+        """
+        if user_name in self._participant_names:
+            self._participant_names.remove(user_name)
+            logger.info(f"📝 Unregistered participant: {user_name}")
+
+    def get_participant_names(self) -> List[str]:
+        """Get list of registered participant names."""
+        return self._participant_names.copy()
+
+    def _get_available_names(self) -> List[str]:
+        """
+        Get the list of names to use for assignment.
+
+        Returns participant names if registered, otherwise fallback names.
+        """
+        if self._participant_names:
+            return self._participant_names
+        return self._fallback_names
 
     def assign_identity(self, speaker_id: int) -> str:
         """
         Assign an identity to a speaker ID if not already assigned.
 
+        Uses participant names from Daily.co if available, otherwise falls back
+        to generic names ("Founder A", "Founder B").
+
         Args:
             speaker_id: Deepgram speaker ID (0, 1, 2, ...)
 
         Returns:
-            The founder name assigned to this speaker
+            The participant name assigned to this speaker
 
         Raises:
-            ValueError: If all founder names have been assigned and a new speaker is detected
+            ValueError: If all names have been assigned and a new speaker is detected
         """
         # Return existing assignment if already mapped
         if speaker_id in self._speaker_map:
             return self._speaker_map[speaker_id]
 
-        # Check if we have founder names available
-        if self._next_assignment_index >= len(self._founder_names):
+        # Get available names (participant names or fallback)
+        available_names = self._get_available_names()
+
+        # Check if we have names available
+        if self._next_assignment_index >= len(available_names):
             error_msg = (
                 f"Cannot assign identity to speaker {speaker_id}: "
-                f"All {len(self._founder_names)} founder names already assigned"
+                f"All {len(available_names)} names already assigned"
             )
             logger.error(error_msg)
             raise ValueError(error_msg)
 
-        # Assign next available founder name
-        founder_name = self._founder_names[self._next_assignment_index]
-        self._speaker_map[speaker_id] = founder_name
+        # Assign next available name
+        participant_name = available_names[self._next_assignment_index]
+        self._speaker_map[speaker_id] = participant_name
         self._next_assignment_index += 1
 
-        logger.info(f"Assigned speaker {speaker_id} to {founder_name}")
-        return founder_name
+        logger.info(f"🎤 Assigned speaker {speaker_id} → {participant_name}")
+        return participant_name
 
     def get_identity(self, speaker_id: int) -> str:
         """
@@ -106,10 +170,10 @@ class SpeakerMapper:
 
     def get_all_mappings(self) -> Dict[int, str]:
         """
-        Get all speaker ID to founder name mappings.
+        Get all speaker ID to participant name mappings.
 
         Returns:
-            Dictionary of speaker IDs to founder names
+            Dictionary of speaker IDs to participant names
         """
         return self._speaker_map.copy()
 
@@ -117,8 +181,10 @@ class SpeakerMapper:
         """Reset the speaker mapping (for new sessions)."""
         logger.info("Resetting speaker mappings")
         self._speaker_map.clear()
+        self._participant_names.clear()
         self._next_assignment_index = 0
 
     def __repr__(self) -> str:
         """String representation of the mapper."""
-        return f"SpeakerMapper(mappings={self._speaker_map}, available={self._founder_names[self._next_assignment_index:]})"
+        available = self._get_available_names()[self._next_assignment_index:]
+        return f"SpeakerMapper(mappings={self._speaker_map}, participants={self._participant_names}, available={available})"

@@ -3488,3 +3488,325 @@ Founder A: We've bee...
 2025-12-11 21:59:49,627 - src.pipeline.main - INFO - ============================================================
 2025-12-11 21:59:49,627 - src.pipeline.main - INFO - 🏀 Voice Referee System stopped
 2025-12-11 21:59:49,627 - src.pipeline.main - INFO - ============================================================
+2025-12-11 22:07:24,802 - __main__ - INFO - ✅ All configuration validated
+2025-12-11 22:07:24,803 - __main__ - INFO - 📍 Room URL: https://ump.daily.co/founders
+2025-12-11 22:07:24,803 - __main__ - INFO - 🎤 STT Model: nova-2
+2025-12-11 22:07:24,803 - __main__ - INFO - 🤖 LLM Model: claude-sonnet-4-20250514
+2025-12-11 22:07:24,803 - __main__ - INFO - 🔊 TTS Voice: 21m00Tcm4TlvDq8ikWAM
+2025-12-11 22:07:24,804 - src.pipeline.main - INFO - ============================================================
+2025-12-11 22:07:24,804 - src.pipeline.main - INFO - 🏀 Starting Voice Referee System
+2025-12-11 22:07:24,804 - src.pipeline.main - INFO - ============================================================
+2025-12-11 22:07:24,804 - src.pipeline.main - INFO - Log level: INFO
+2025-12-11 22:07:24,804 - src.pipeline.main - INFO - Daily room: https://ump.daily.co/founders
+2025-12-11 22:07:24,804 - src.pipeline.main - INFO - STT: Deepgram nova-2 (diarization: True)
+2025-12-11 22:07:24,804 - src.pipeline.main - INFO - LLM: claude-sonnet-4-20250514
+2025-12-11 22:07:24,804 - src.pipeline.main - INFO - TTS: ElevenLabs 21m00Tcm4TlvDq8ikWAM
+2025-12-11 22:07:24,804 - src.pipeline.main - INFO - ============================================================
+2025-12-11 22:07:24,804 - src.pipeline.main - INFO - Creating Voice Referee pipeline...
+2025-12-11 22:07:24,804 - src.pipeline.main - INFO - Initializing Daily transport...
+2025-12-11 22:07:24,804 - src.services.daily_transport - INFO - Creating Daily transport
+2025-12-11 22:07:24,923 - src.services.daily_transport - INFO - VAD enabled with Silero analyzer
+2025-12-11 22:07:24,957 - src.services.daily_transport - INFO - Daily transport created successfully
+2025-12-11 22:07:24,957 - src.services.daily_transport - INFO - Event handlers configured for Daily transport
+2025-12-11 22:07:24,957 - src.pipeline.main - INFO - Initializing Deepgram STT service...
+2025-12-11 22:07:24,957 - src.services.deepgram_stt - INFO - Creating Deepgram STT service with configuration:
+2025-12-11 22:07:24,957 - src.services.deepgram_stt - INFO -   Model: nova-2
+2025-12-11 22:07:24,958 - src.services.deepgram_stt - INFO -   Language: en-US
+2025-12-11 22:07:24,958 - src.services.deepgram_stt - INFO -   Diarization: True (CRITICAL)
+2025-12-11 22:07:24,958 - src.services.deepgram_stt - INFO -   Punctuation: True
+2025-12-11 22:07:24,958 - src.services.deepgram_stt - INFO -   Interim results: True
+2025-12-11 22:07:24,958 - src.services.deepgram_stt - INFO -   Smart format: True
+2025-12-11 22:07:24,958 - src.services.deepgram_stt - INFO -   Utterance end: 1000ms
+2025-12-11 22:07:24,960 - src.services.deepgram_stt - INFO - DiarizedDeepgramSTTService initialized with diarization enabled
+2025-12-11 22:07:24,960 - src.services.deepgram_stt - INFO - Deepgram STT service created successfully
+2025-12-11 22:07:24,960 - src.services.deepgram_stt - WARNING - HIGH RISK: Monitor diarization accuracy. Speaker misidentification will cause incorrect attribution.
+2025-12-11 22:07:24,960 - src.pipeline.main - INFO - Initializing Referee Monitor processor...
+2025-12-11 22:07:24,960 - src.processors.speaker_mapper - INFO - SpeakerMapper initialized with founder names: ['Founder A', 'Founder B']
+2025-12-11 22:07:24,960 - src.processors.conversation_state - INFO - ConversationState initialized with buffer size 50
+2025-12-11 22:07:24,960 - src.analysis.conversation_analyzer - INFO - ConversationAnalyzer initialized with tension_threshold=0.1
+2025-12-11 22:07:24,960 - src.decision.intervention_decider - INFO - InterventionDecider initialized with cooldown=10s, checkin_every=5 utterances
+2025-12-11 22:07:24,960 - src.processors.referee_monitor - INFO - RefereeMonitorProcessor initialized with config: tension_threshold=0.1, cooldown=10s, buffer_size=50
+2025-12-11 22:07:24,960 - src.pipeline.main - INFO - Initializing Anthropic LLM service...
+2025-12-11 22:07:25,005 - src.services.llm_service - INFO - Anthropic LLM service initialized with model: claude-sonnet-4-20250514
+2025-12-11 22:07:25,005 - src.pipeline.main - INFO - Initializing ElevenLabs TTS service...
+2025-12-11 22:07:25,005 - src.services.tts_service - INFO - Initializing ElevenLabs TTS service
+2025-12-11 22:07:25,005 - src.services.tts_service - INFO - ElevenLabs TTS service initialized successfully
+2025-12-11 22:07:25,005 - src.pipeline.main - INFO - Assembling pipeline stages...
+2025-12-11 22:07:25,006 - src.pipeline.main - INFO - Pipeline created successfully
+2025-12-11 22:07:25,006 - src.pipeline.main - INFO - Pipeline stages: 8 processors
+2025-12-11 22:07:25,006 - src.pipeline.main - INFO - Interruptions enabled: True
+2025-12-11 22:07:25,006 - src.pipeline.main - INFO - Metrics enabled: True
+2025-12-11 22:07:25,007 - src.pipeline.main - INFO - 🚀 Pipeline starting...
+2025-12-11 22:07:25,007 - src.pipeline.main - INFO - Waiting for participants to join Daily room...
+2025-12-11 22:07:28,008 - src.pipeline.main - INFO - 📢 Sending referee introduction...
+2025-12-11 22:08:02,976 - src.services.deepgram_stt - INFO - Transcription #6 [Speaker 0] FINAL: Mark, we need to talk about the
+2025-12-11 22:08:02,977 - src.processors.speaker_mapper - INFO - Assigned speaker 0 to Founder A
+2025-12-11 22:08:02,977 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: Mark, we need to talk about the...
+2025-12-11 22:08:02,977 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:08:02,977 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=[], intervention=True
+2025-12-11 22:08:02,977 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:08:02,977 - src.decision.intervention_decider - INFO - Intervention decision: YES - conversation health concern (confidence=0.09, tension=0.15)
+2025-12-11 22:08:02,977 - src.processors.referee_monitor - INFO - Decision: should_intervene=True, reason=conversation health concern
+2025-12-11 22:08:02,977 - src.processors.referee_monitor - INFO - 🚨 INTERVENTION TRIGGERED - conversation health concern (confidence=0.09)
+2025-12-11 22:08:02,977 - src.decision.intervention_decider - INFO - Intervention recorded, cooldown period started (10s)
+2025-12-11 22:08:02,977 - src.processors.conversation_state - INFO - AI intervention recorded
+2025-12-11 22:08:02,977 - src.processors.referee_monitor - INFO - Intervention context: As an AI referee moderating a founder conversation, you've detected the following issues:
+
+
+
+Recent conversation:
+Founder A: Mark, we need to talk about the
+
+Please intervene with a brief, diplomatic ...
+2025-12-11 22:08:02,977 - src.processors.referee_monitor - INFO - Analysis: tension=0.15, patterns=[]
+2025-12-11 22:08:05,535 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-12-11 22:08:06,605 - src.services.deepgram_stt - INFO - Transcription #11 [Speaker 0] FINAL: pivot. The board wants it to
+2025-12-11 22:08:06,605 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: pivot. The board wants it to...
+2025-12-11 22:08:06,605 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:08:06,605 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=[], intervention=True
+2025-12-11 22:08:06,605 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:08:06,605 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (6s remaining)
+2025-12-11 22:08:09,826 - src.services.deepgram_stt - INFO - Transcription #16 [Speaker 0] FINAL: decision by Friday. You've been dodging this
+2025-12-11 22:08:09,827 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: decision by Friday. You've been dodging this...
+2025-12-11 22:08:09,827 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:08:09,827 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=[], intervention=True
+2025-12-11 22:08:09,827 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:08:09,827 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (3s remaining)
+2025-12-11 22:08:13,494 - src.services.deepgram_stt - INFO - Transcription #21 [Speaker 0] FINAL: conversation for two weeks.
+2025-12-11 22:08:13,495 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: conversation for two weeks....
+2025-12-11 22:08:13,495 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:08:13,495 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=[], intervention=True
+2025-12-11 22:08:13,495 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:08:13,495 - src.decision.intervention_decider - INFO - Proactive intervention: Founder A has spoken 3 times consecutively
+2025-12-11 22:08:13,495 - src.processors.referee_monitor - INFO - Decision: should_intervene=True, reason=Founder A speaking consecutively (3x)
+2025-12-11 22:08:13,495 - src.processors.referee_monitor - INFO - 🚨 INTERVENTION TRIGGERED - Founder A speaking consecutively (3x) (confidence=0.80)
+2025-12-11 22:08:13,495 - src.decision.intervention_decider - INFO - Intervention recorded, cooldown period started (10s)
+2025-12-11 22:08:13,495 - src.processors.conversation_state - INFO - AI intervention recorded
+2025-12-11 22:08:13,495 - src.processors.referee_monitor - INFO - Intervention context: As an AI referee, gently encourage balanced participation.
+
+Recent discussion (note: Founder A has been speaking several times in a row):
+Founder A: pivot. The board wants it to
+Founder A: decision by...
+2025-12-11 22:08:13,495 - src.processors.referee_monitor - INFO - Analysis: tension=0.15, patterns=[]
+2025-12-11 22:08:15,404 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-12-11 22:08:16,418 - src.services.deepgram_stt - INFO - Transcription #26 [Speaker 0] FINAL: I'm not dodging anything.
+2025-12-11 22:08:16,418 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: I'm not dodging anything....
+2025-12-11 22:08:16,418 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:08:16,418 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:08:16,418 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:08:16,418 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (7s remaining)
+2025-12-11 22:08:19,821 - src.services.deepgram_stt - INFO - Transcription #31 [Speaker 0] FINAL: I'm trying to keep us from making yet another feature.
+2025-12-11 22:08:19,821 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: I'm trying to keep us from making yet another feat...
+2025-12-11 22:08:19,821 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:08:19,821 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:08:19,821 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:08:19,821 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (4s remaining)
+2025-12-11 22:08:20,671 - src.services.deepgram_stt - INFO - Transcription #33 [Speaker 0] FINAL: Decision.
+2025-12-11 22:08:20,672 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: Decision....
+2025-12-11 22:08:20,672 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:08:20,672 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:08:20,672 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:08:20,672 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (3s remaining)
+2025-12-11 22:08:24,666 - src.services.deepgram_stt - INFO - Transcription #38 [Speaker 0] FINAL: You know, like, the last three pivots
+2025-12-11 22:08:24,666 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: You know, like, the last three pivots...
+2025-12-11 22:08:24,666 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:08:24,666 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:08:24,666 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:08:24,666 - src.decision.intervention_decider - INFO - Proactive intervention: Founder A has spoken 4 times consecutively
+2025-12-11 22:08:24,666 - src.processors.referee_monitor - INFO - Decision: should_intervene=True, reason=Founder A speaking consecutively (4x)
+2025-12-11 22:08:24,666 - src.processors.referee_monitor - INFO - 🚨 INTERVENTION TRIGGERED - Founder A speaking consecutively (4x) (confidence=0.80)
+2025-12-11 22:08:24,666 - src.decision.intervention_decider - INFO - Intervention recorded, cooldown period started (10s)
+2025-12-11 22:08:24,666 - src.processors.conversation_state - INFO - AI intervention recorded
+2025-12-11 22:08:24,667 - src.processors.referee_monitor - INFO - Intervention context: As an AI referee, gently encourage balanced participation.
+
+Recent discussion (note: Founder A has been speaking several times in a row):
+Founder A: I'm trying to keep us from making yet another featu...
+2025-12-11 22:08:24,667 - src.processors.referee_monitor - INFO - Analysis: tension=0.15, patterns=['Rapid-fire exchange detected']
+2025-12-11 22:08:26,572 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-12-11 22:08:27,222 - src.services.deepgram_stt - INFO - Transcription #43 [Speaker 0] FINAL: that burned six months of runway.
+2025-12-11 22:08:27,223 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: that burned six months of runway....
+2025-12-11 22:08:27,223 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:08:27,223 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:08:27,223 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:08:27,223 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (7s remaining)
+2025-12-11 22:08:29,922 - src.services.deepgram_stt - INFO - Transcription #48 [Speaker 0] FINAL: That's not fair.
+2025-12-11 22:08:29,922 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: That's not fair....
+2025-12-11 22:08:29,922 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:08:29,922 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:08:29,922 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:08:29,922 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (5s remaining)
+2025-12-11 22:08:59,552 - src.services.deepgram_stt - INFO - Transcription #51 [Speaker 0] FINAL: Those were
+2025-12-11 22:08:59,553 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: Those were...
+2025-12-11 22:08:59,553 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:08:59,553 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=[], intervention=True
+2025-12-11 22:08:59,553 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:08:59,553 - src.decision.intervention_decider - INFO - Proactive intervention: Founder A has spoken 3 times consecutively
+2025-12-11 22:08:59,553 - src.processors.referee_monitor - INFO - Decision: should_intervene=True, reason=Founder A speaking consecutively (3x)
+2025-12-11 22:08:59,554 - src.processors.referee_monitor - INFO - 🚨 INTERVENTION TRIGGERED - Founder A speaking consecutively (3x) (confidence=0.80)
+2025-12-11 22:08:59,554 - src.decision.intervention_decider - INFO - Intervention recorded, cooldown period started (10s)
+2025-12-11 22:08:59,554 - src.processors.conversation_state - INFO - AI intervention recorded
+2025-12-11 22:08:59,554 - src.processors.referee_monitor - INFO - Intervention context: As an AI referee, gently encourage balanced participation.
+
+Recent discussion (note: Founder A has been speaking several times in a row):
+Founder A: that burned six months of runway.
+Founder A: That's...
+2025-12-11 22:08:59,554 - src.processors.referee_monitor - INFO - Analysis: tension=0.15, patterns=[]
+2025-12-11 22:09:01,185 - src.services.deepgram_stt - INFO - Transcription #55 [Speaker 0] FINAL: collective decisions.
+2025-12-11 22:09:01,185 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: collective decisions....
+2025-12-11 22:09:01,185 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:01,185 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=[], intervention=True
+2025-12-11 22:09:01,185 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:01,185 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (8s remaining)
+2025-12-11 22:09:01,326 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-12-11 22:09:05,172 - src.services.deepgram_stt - INFO - Transcription #58 [Speaker 0] FINAL: Were they
+2025-12-11 22:09:05,173 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: Were they...
+2025-12-11 22:09:05,173 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:05,173 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=[], intervention=True
+2025-12-11 22:09:05,173 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:05,174 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (4s remaining)
+2025-12-11 22:09:08,360 - src.services.deepgram_stt - INFO - Transcription #63 [Speaker 0] FINAL: Because I remember saying we weren't ready
+2025-12-11 22:09:08,360 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: Because I remember saying we weren't ready...
+2025-12-11 22:09:08,360 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:08,361 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=[], intervention=True
+2025-12-11 22:09:08,361 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:08,361 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (1s remaining)
+2025-12-11 22:09:11,630 - src.services.deepgram_stt - INFO - Transcription #68 [Speaker 0] FINAL: and you pushed it through anyway because you'd already
+2025-12-11 22:09:11,631 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: and you pushed it through anyway because you'd alr...
+2025-12-11 22:09:11,631 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:11,631 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:09:11,631 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:11,631 - src.decision.intervention_decider - INFO - Proactive intervention: Founder A has spoken 4 times consecutively
+2025-12-11 22:09:11,631 - src.processors.referee_monitor - INFO - Decision: should_intervene=True, reason=Founder A speaking consecutively (4x)
+2025-12-11 22:09:11,631 - src.processors.referee_monitor - INFO - 🚨 INTERVENTION TRIGGERED - Founder A speaking consecutively (4x) (confidence=0.80)
+2025-12-11 22:09:11,632 - src.decision.intervention_decider - INFO - Intervention recorded, cooldown period started (10s)
+2025-12-11 22:09:11,632 - src.processors.conversation_state - INFO - AI intervention recorded
+2025-12-11 22:09:11,632 - src.processors.referee_monitor - INFO - Intervention context: As an AI referee, gently encourage balanced participation.
+
+Recent discussion (note: Founder A has been speaking several times in a row):
+Founder A: Were they
+Founder A: Because I remember saying we w...
+2025-12-11 22:09:11,632 - src.processors.referee_monitor - INFO - Analysis: tension=0.15, patterns=['Rapid-fire exchange detected']
+2025-12-11 22:09:13,831 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-12-11 22:09:15,219 - src.services.deepgram_stt - INFO - Transcription #73 [Speaker 0] FINAL: promised the investors.
+2025-12-11 22:09:15,219 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: promised the investors....
+2025-12-11 22:09:15,220 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:15,220 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:09:15,220 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:15,220 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (6s remaining)
+2025-12-11 22:09:17,770 - src.services.deepgram_stt - INFO - Transcription #78 [Speaker 0] FINAL: Oh, here we go. Everything's my fault.
+2025-12-11 22:09:17,770 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: Oh, here we go. Everything's my fault....
+2025-12-11 22:09:17,770 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:17,770 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:09:17,770 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:17,770 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (4s remaining)
+2025-12-11 22:09:21,706 - src.services.deepgram_stt - INFO - Transcription #82 [Speaker 0] FINAL: You know what, Mark? Maybe
+2025-12-11 22:09:21,707 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: You know what, Mark? Maybe...
+2025-12-11 22:09:21,707 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:21,707 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:09:21,707 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:21,707 - src.decision.intervention_decider - INFO - Proactive intervention: Founder A has spoken 3 times consecutively
+2025-12-11 22:09:21,707 - src.processors.referee_monitor - INFO - Decision: should_intervene=True, reason=Founder A speaking consecutively (3x)
+2025-12-11 22:09:21,707 - src.processors.referee_monitor - INFO - 🚨 INTERVENTION TRIGGERED - Founder A speaking consecutively (3x) (confidence=0.80)
+2025-12-11 22:09:21,708 - src.decision.intervention_decider - INFO - Intervention recorded, cooldown period started (10s)
+2025-12-11 22:09:21,708 - src.processors.conversation_state - INFO - AI intervention recorded
+2025-12-11 22:09:21,708 - src.processors.referee_monitor - INFO - Intervention context: As an AI referee, gently encourage balanced participation.
+
+Recent discussion (note: Founder A has been speaking several times in a row):
+Founder A: promised the investors.
+Founder A: Oh, here we go. ...
+2025-12-11 22:09:21,708 - src.processors.referee_monitor - INFO - Analysis: tension=0.15, patterns=['Rapid-fire exchange detected']
+2025-12-11 22:09:24,147 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-12-11 22:09:24,795 - src.services.deepgram_stt - INFO - Transcription #87 [Speaker 0] FINAL: the product actually worked on launch
+2025-12-11 22:09:24,795 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: the product actually worked on launch...
+2025-12-11 22:09:24,795 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:24,795 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:09:24,795 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:24,795 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (7s remaining)
+2025-12-11 22:09:27,429 - src.services.deepgram_stt - INFO - Transcription #92 [Speaker 0] FINAL: day. We wouldn't be having this conversation.
+2025-12-11 22:09:27,430 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: day. We wouldn't be having this conversation....
+2025-12-11 22:09:27,430 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:27,430 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:09:27,430 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:27,430 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (4s remaining)
+2025-12-11 22:09:31,174 - src.services.deepgram_stt - INFO - Transcription #95 [Speaker 0] FINAL: Wow.
+2025-12-11 22:09:31,175 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: Wow....
+2025-12-11 22:09:31,175 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:31,175 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:09:31,175 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:31,175 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (1s remaining)
+2025-12-11 22:09:33,928 - src.services.deepgram_stt - INFO - Transcription #100 [Speaker 0] FINAL: The product didn't work because you kept
+2025-12-11 22:09:33,929 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: The product didn't work because you kept...
+2025-12-11 22:09:33,929 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:33,929 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:09:33,929 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:33,929 - src.decision.intervention_decider - INFO - Proactive intervention: Founder A has spoken 4 times consecutively
+2025-12-11 22:09:33,929 - src.processors.referee_monitor - INFO - Decision: should_intervene=True, reason=Founder A speaking consecutively (4x)
+2025-12-11 22:09:33,929 - src.processors.referee_monitor - INFO - 🚨 INTERVENTION TRIGGERED - Founder A speaking consecutively (4x) (confidence=0.80)
+2025-12-11 22:09:33,929 - src.decision.intervention_decider - INFO - Intervention recorded, cooldown period started (10s)
+2025-12-11 22:09:33,929 - src.processors.conversation_state - INFO - AI intervention recorded
+2025-12-11 22:09:33,929 - src.processors.referee_monitor - INFO - Intervention context: As an AI referee, gently encourage balanced participation.
+
+Recent discussion (note: Founder A has been speaking several times in a row):
+Founder A: day. We wouldn't be having this conversation.
+Found...
+2025-12-11 22:09:33,929 - src.processors.referee_monitor - INFO - Analysis: tension=0.15, patterns=['Rapid-fire exchange detected']
+2025-12-11 22:09:35,463 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-12-11 22:09:36,882 - src.services.deepgram_stt - INFO - Transcription #105 [Speaker 0] FINAL: changing the scope every week.
+2025-12-11 22:09:36,883 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: changing the scope every week....
+2025-12-11 22:09:36,883 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:36,883 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:09:36,883 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:36,883 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (7s remaining)
+2025-12-11 22:09:39,444 - src.services.deepgram_stt - INFO - Transcription #110 [Speaker 0] FINAL: My key was building to a moving target.
+2025-12-11 22:09:39,445 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: My key was building to a moving target....
+2025-12-11 22:09:39,445 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:39,445 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:09:39,445 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:39,445 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (4s remaining)
+2025-12-11 22:09:42,430 - src.services.deepgram_stt - INFO - Transcription #115 [Speaker 0] FINAL: While you were out doing podcast interviews.
+2025-12-11 22:09:42,431 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: While you were out doing podcast interviews....
+2025-12-11 22:09:42,431 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:42,431 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:09:42,431 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:42,431 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (1s remaining)
+2025-12-11 22:09:46,395 - src.services.deepgram_stt - INFO - Transcription #118 [Speaker 0] FINAL: Alright. She's supposed to, like,
+2025-12-11 22:09:46,396 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: Alright. She's supposed to, like,...
+2025-12-11 22:09:46,396 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:46,396 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:09:46,396 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:46,396 - src.decision.intervention_decider - INFO - Proactive intervention: Founder A has spoken 4 times consecutively
+2025-12-11 22:09:46,396 - src.processors.referee_monitor - INFO - Decision: should_intervene=True, reason=Founder A speaking consecutively (4x)
+2025-12-11 22:09:46,396 - src.processors.referee_monitor - INFO - 🚨 INTERVENTION TRIGGERED - Founder A speaking consecutively (4x) (confidence=0.80)
+2025-12-11 22:09:46,396 - src.decision.intervention_decider - INFO - Intervention recorded, cooldown period started (10s)
+2025-12-11 22:09:46,396 - src.processors.conversation_state - INFO - AI intervention recorded
+2025-12-11 22:09:46,396 - src.processors.referee_monitor - INFO - Intervention context: As an AI referee, gently encourage balanced participation.
+
+Recent discussion (note: Founder A has been speaking several times in a row):
+Founder A: My key was building to a moving target.
+Founder A: ...
+2025-12-11 22:09:46,396 - src.processors.referee_monitor - INFO - Analysis: tension=0.15, patterns=['Rapid-fire exchange detected']
+2025-12-11 22:09:48,059 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-12-11 22:09:50,366 - src.services.deepgram_stt - INFO - Transcription #123 [Speaker 0] FINAL: intervene more regularly.
+2025-12-11 22:09:50,367 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: intervene more regularly....
+2025-12-11 22:09:50,367 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:50,367 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:09:50,367 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:50,367 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (6s remaining)
+2025-12-11 22:09:52,780 - src.services.deepgram_stt - INFO - Transcription #128 [Speaker 0] FINAL: But you get the idea. Thank you. Alright.
+2025-12-11 22:09:52,780 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: But you get the idea. Thank you. Alright....
+2025-12-11 22:09:52,780 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:52,780 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:09:52,780 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:52,781 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (4s remaining)
+2025-12-11 22:09:55,984 - src.services.deepgram_stt - INFO - Transcription #133 [Speaker 0] FINAL: Thanks.
+2025-12-11 22:09:55,984 - src.processors.referee_monitor - INFO - Utterance recorded: Founder A: Thanks....
+2025-12-11 22:09:55,984 - src.processors.referee_monitor - INFO - Running conversation analysis...
+2025-12-11 22:09:55,984 - src.analysis.conversation_analyzer - INFO - 📊 Analysis: tension=0.15, balance=0.00, interruption_rate=0.00, patterns=['Rapid-fire exchange detected'], intervention=True
+2025-12-11 22:09:55,984 - src.processors.referee_monitor - INFO - Analysis complete: tension=0.15, requires_intervention=True
+2025-12-11 22:09:55,984 - src.processors.referee_monitor - INFO - Decision: should_intervene=False, reason=In cooldown period (0s remaining)
+2025-12-11 22:14:54,493 - deepgram.clients.common.v1.abstract_async_websocket - ERROR - tasks cancelled error: 
+2025-12-11 22:14:54,497 - deepgram.clients.common.v1.abstract_async_websocket - ERROR - tasks cancelled error: 
+2025-12-11 22:14:55,633 - src.pipeline.main - INFO - Cleaning up resources...
+2025-12-11 22:14:56,634 - src.pipeline.main - INFO - ============================================================
+2025-12-11 22:14:56,634 - src.pipeline.main - INFO - 🏀 Voice Referee System stopped
+2025-12-11 22:14:56,634 - src.pipeline.main - INFO - ============================================================
