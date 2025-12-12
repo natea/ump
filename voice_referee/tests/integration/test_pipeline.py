@@ -14,6 +14,7 @@ Test Scenarios:
 """
 
 import pytest
+import pytest_asyncio
 import asyncio
 import time
 from unittest.mock import AsyncMock, Mock, patch
@@ -743,7 +744,7 @@ async def test_full_pipeline_integration(
 # Test Cleanup
 # =====================================================================
 
-@pytest.fixture(autouse=True)
+@pytest_asyncio.fixture(autouse=True)
 async def cleanup_after_test():
     """Cleanup after each test."""
     yield
