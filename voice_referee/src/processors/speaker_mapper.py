@@ -103,14 +103,14 @@ class SpeakerMapper:
         Uses participant names from Daily.co if available, otherwise falls back
         to generic names ("Founder A", "Founder B").
 
+        If more speakers are detected than names available (common with diarization),
+        extra speakers are mapped to "Unknown Speaker N".
+
         Args:
             speaker_id: Deepgram speaker ID (0, 1, 2, ...)
 
         Returns:
             The participant name assigned to this speaker
-
-        Raises:
-            ValueError: If all names have been assigned and a new speaker is detected
         """
         # Return existing assignment if already mapped
         if speaker_id in self._speaker_map:
@@ -121,12 +121,15 @@ class SpeakerMapper:
 
         # Check if we have names available
         if self._next_assignment_index >= len(available_names):
-            error_msg = (
-                f"Cannot assign identity to speaker {speaker_id}: "
-                f"All {len(available_names)} names already assigned"
+            # Diarization detected more speakers than expected
+            # This is common - assign a generic name and log a warning
+            participant_name = f"Unknown Speaker {speaker_id}"
+            self._speaker_map[speaker_id] = participant_name
+            logger.warning(
+                f"🎤 Extra speaker detected: speaker {speaker_id} → {participant_name} "
+                f"(expected max {len(available_names)} speakers)"
             )
-            logger.error(error_msg)
-            raise ValueError(error_msg)
+            return participant_name
 
         # Assign next available name
         participant_name = available_names[self._next_assignment_index]
