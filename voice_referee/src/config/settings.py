@@ -155,6 +155,52 @@ class ProcessorConfig(BaseModel):
         return v
 
 
+class VisionConfig(BaseModel):
+    """Configuration for vision-based screen analysis."""
+
+    enabled: bool = Field(default=False, description="Enable vision analysis")
+    provider: str = Field(default="anthropic", description="Vision provider")
+    model: str = Field(default="claude-3-5-sonnet-20241022", description="Vision model")
+    api_key: str = Field(default="", description="Vision API key (uses LLM key if empty)")
+
+    # Analysis settings
+    frame_capture_mode: str = Field(default="on_demand", description="on_demand or continuous")
+    analysis_interval_seconds: float = Field(default=2.0, description="Seconds between analyses")
+    max_analysis_cost_per_session: float = Field(default=0.30, description="Max cost per session")
+
+    # Commentary settings
+    commentary_style: str = Field(default="concise", description="concise, detailed, or technical")
+    commentary_trigger_threshold: float = Field(default=0.6, description="Threshold for triggering commentary")
+
+    # Performance settings
+    max_vision_latency_ms: int = Field(default=500, description="Max vision API latency")
+    adaptive_frame_rate: bool = Field(default=True, description="Enable adaptive frame rate")
+
+    @field_validator("provider")
+    @classmethod
+    def validate_provider(cls, v: str) -> str:
+        valid_providers = ["anthropic", "openai", "google"]
+        if v not in valid_providers:
+            raise ValueError(f"Provider must be one of {valid_providers}")
+        return v
+
+    @field_validator("frame_capture_mode")
+    @classmethod
+    def validate_capture_mode(cls, v: str) -> str:
+        valid_modes = ["on_demand", "continuous"]
+        if v not in valid_modes:
+            raise ValueError(f"Frame capture mode must be one of {valid_modes}")
+        return v
+
+    @field_validator("commentary_style")
+    @classmethod
+    def validate_commentary_style(cls, v: str) -> str:
+        valid_styles = ["concise", "detailed", "technical"]
+        if v not in valid_styles:
+            raise ValueError(f"Commentary style must be one of {valid_styles}")
+        return v
+
+
 class Settings(BaseSettings):
     """Main settings class combining all configurations."""
 
@@ -195,6 +241,15 @@ class Settings(BaseSettings):
     tension_threshold: float = Field(default=0.7, validation_alias="TENSION_THRESHOLD")
     cooldown_seconds: int = Field(default=30, validation_alias="COOLDOWN_SECONDS")
     buffer_size: int = Field(default=50, validation_alias="BUFFER_SIZE")
+
+    # Vision settings
+    vision_enabled: bool = Field(default=False, validation_alias="VISION_ENABLED")
+    vision_provider: str = Field(default="anthropic", validation_alias="VISION_PROVIDER")
+    vision_model: str = Field(default="claude-3-5-sonnet-20241022", validation_alias="VISION_MODEL")
+    vision_api_key: Optional[str] = Field(default=None, validation_alias="VISION_API_KEY")
+    vision_analysis_interval: float = Field(default=2.0, validation_alias="VISION_ANALYSIS_INTERVAL")
+    vision_max_cost: float = Field(default=0.30, validation_alias="VISION_MAX_COST_PER_SESSION")
+    vision_commentary_style: str = Field(default="concise", validation_alias="VISION_COMMENTARY_STYLE")
 
     # Logging
     log_level: str = Field(default="INFO", validation_alias="LOG_LEVEL")
@@ -248,6 +303,19 @@ class Settings(BaseSettings):
             tension_threshold=self.tension_threshold,
             cooldown_seconds=self.cooldown_seconds,
             buffer_size=self.buffer_size
+        )
+
+    @property
+    def vision(self) -> VisionConfig:
+        """Get vision configuration."""
+        return VisionConfig(
+            enabled=self.vision_enabled,
+            provider=self.vision_provider,
+            model=self.vision_model,
+            api_key=self.vision_api_key or self.anthropic_api_key,
+            analysis_interval_seconds=self.vision_analysis_interval,
+            max_analysis_cost_per_session=self.vision_max_cost,
+            commentary_style=self.vision_commentary_style,
         )
 
 

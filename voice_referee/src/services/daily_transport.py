@@ -44,6 +44,11 @@ class VoiceRefereeTransport:
         self._on_participant_joined_callback: Optional[ParticipantCallback] = None
         self._on_participant_left_callback: Optional[ParticipantCallback] = None
 
+        # Screen capture state
+        self._screen_capture_enabled = False
+        self._screen_capture_participant: Optional[str] = None
+        self._on_screen_share_started: Optional[Callable[[str], None]] = None
+
         # Register event handlers on the transport
         self._setup_event_handlers()
 
@@ -100,7 +105,7 @@ class VoiceRefereeTransport:
 
         @self._transport.event_handler("on_first_participant_joined")
         async def handle_first_participant(transport, participant):
-            """Handle first participant joining - enable transcription capture."""
+            """Handle first participant joining - enable transcription and optionally screen capture."""
             participant_id = participant.get("id", "unknown")
             user_name = participant.get("info", {}).get("userName", "") or participant.get("user_name", "Unknown")
 
@@ -108,6 +113,23 @@ class VoiceRefereeTransport:
 
             # Capture transcription for this participant
             await transport.capture_participant_transcription(participant_id)
+
+            # Note: Screen capture is enabled separately via enable_screen_capture()
+            # when vision is configured and participant starts screen sharing
+
+        @self._transport.event_handler("on_participant_updated")
+        async def handle_participant_updated(transport, participant):
+            """Handle participant state updates including screen share status."""
+            participant_id = participant.get("id", "unknown")
+            tracks = participant.get("tracks", {})
+
+            # Check if participant started screen sharing
+            screen_video = tracks.get("screenVideo", {})
+            if screen_video.get("state") == "playable" and not self._screen_capture_enabled:
+                logger.info(f"📺 Screen share detected from {participant_id}")
+                # Notify via callback if set
+                if self._on_screen_share_started:
+                    await self._on_screen_share_started(participant_id)
 
         logger.info("Daily transport event handlers configured")
 
@@ -141,6 +163,70 @@ class VoiceRefereeTransport:
     def participant_count(self) -> int:
         """Get current number of participants."""
         return len(self._participants)
+
+    @property
+    def screen_capture_enabled(self) -> bool:
+        """Check if screen capture is currently enabled."""
+        return self._screen_capture_enabled
+
+    async def enable_screen_capture(self, participant_id: str, framerate: int = 0) -> None:
+        """Enable screen video capture for a participant.
+
+        This subscribes to the participant's screen share and enables frame capture.
+
+        Args:
+            participant_id: Daily participant ID to capture screen from
+            framerate: Frame rate for capture (0 = on-demand, 1+ = continuous fps)
+        """
+        logger.info(f"📺 Enabling screen capture for participant {participant_id}")
+
+        try:
+            # Subscribe to screen video
+            await self._transport.update_subscriptions(
+                participant_settings={
+                    participant_id: {
+                        "media": {
+                            "screenVideo": "subscribed"
+                        }
+                    }
+                }
+            )
+
+            # Enable frame capture
+            await self._transport.capture_participant_video(
+                participant_id,
+                framerate=framerate,
+                video_source="screenVideo"
+            )
+
+            self._screen_capture_enabled = True
+            self._screen_capture_participant = participant_id
+            logger.info(f"✅ Screen capture enabled for {participant_id} (framerate={framerate})")
+
+        except Exception as e:
+            logger.error(f"Failed to enable screen capture: {e}", exc_info=True)
+            raise
+
+    async def disable_screen_capture(self) -> None:
+        """Disable screen video capture."""
+        if self._screen_capture_participant:
+            logger.info(f"📺 Disabling screen capture for {self._screen_capture_participant}")
+            # Unsubscribe from screen video
+            try:
+                await self._transport.update_subscriptions(
+                    participant_settings={
+                        self._screen_capture_participant: {
+                            "media": {
+                                "screenVideo": "unsubscribed"
+                            }
+                        }
+                    }
+                )
+            except Exception as e:
+                logger.warning(f"Error disabling screen capture: {e}")
+
+            self._screen_capture_enabled = False
+            self._screen_capture_participant = None
 
     async def test_connection(self) -> bool:
         """Test the Daily.co connection.

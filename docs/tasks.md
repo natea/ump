@@ -231,6 +231,16 @@ DailyTransport (audio output to room)
 | 2025-12-11 | Made referee proactive with check-ins |
 | 2025-12-11 | Added dynamic participant names from Daily |
 | 2025-12-11 | Updated AI mediator prompt for better facilitation |
+| 2025-12-14 | **Phase 7 COMPLETE**: Screen Vision + Voice Commentary |
+| 2025-12-14 | Added VisionConfig with provider/model/cost settings |
+| 2025-12-14 | Created vision_service.py (Claude/GPT-4V/Gemini) |
+| 2025-12-14 | Implemented ScreenAnalysisProcessor with cost tracking |
+| 2025-12-14 | Implemented CommentaryProcessor with style options |
+| 2025-12-14 | Added screen video subscription to Daily transport |
+| 2025-12-14 | Integrated vision pipeline into main.py (conditional) |
+| 2025-12-14 | Added 49 unit tests for vision components (all pass) |
+| 2025-12-14 | Updated AI mediator system prompt with screen sharing awareness |
+| 2025-12-14 | Updated commentary prompts for mediation context |
 
 ---
 
@@ -271,6 +281,66 @@ LOG_LEVEL=INFO
 3. **Performance Profiling** - Measure actual latency against 500-730ms target
 4. **Edge Case Testing** - Single speaker, rapid switching, background noise
 5. **Production Deployment** - Docker container, monitoring setup
+
+---
+
+---
+
+## Phase 7: Screen Vision + Voice Commentary (NEW)
+**Source**: [GOAP Plan](screen-vision-voice-plan.md)
+**Milestone**: M7 - Vision-Enabled AI Commentary
+**Cost**: 38 units
+**Pipecat Version Required**: v0.0.48+
+
+### Overview
+Enable AI referee to see and comment on user's shared screen using vision models.
+
+| ID | Task | Status | Assignee | Dependencies | Notes |
+|----|------|--------|----------|--------------|-------|
+| 7.1 | Add VisionConfig to settings.py | ✅ | Swarm | None | Provider, model, API key, analysis interval |
+| 7.2 | Configure screen video subscription | ✅ | Swarm | 7.1 | `screenVideo: "subscribed"` in transport |
+| 7.3 | Enable frame capture | ✅ | Swarm | 7.2 | `capture_participant_video(video_source="screenVideo")` |
+| 7.4 | Create vision_service.py | ✅ | Swarm | 7.1 | Wrapper for Claude/GPT-4V/Gemini vision |
+| 7.5 | Implement ScreenAnalysisProcessor | ✅ | Swarm | 7.3, 7.4 | Process UserImageRawFrame, trigger analysis |
+| 7.6 | Implement CommentaryProcessor | ✅ | Swarm | 7.5 | Generate spoken commentary from vision analysis |
+| 7.7 | Assemble vision pipeline | ✅ | Swarm | 7.5, 7.6 | Integrate with existing pipeline |
+| 7.8 | Add performance monitoring | ✅ | Swarm | 7.7 | Track latency, cost metrics (built into processors) |
+| 7.9 | Write unit tests | ✅ | Swarm | 7.5, 7.6 | 49 tests passing, >80% coverage |
+| 7.10 | Integration testing | ✅ | Swarm | 7.7 | 49 vision tests pass, 146/149 total tests pass |
+
+### Technical Requirements
+- **Latency Target**: <1200ms (screen capture → commentary)
+- **Frame Rate**: Adaptive 0.5-2 fps
+- **Cost Target**: <$0.30 per 30-minute session
+- **Vision Provider**: Anthropic Claude Vision (recommended)
+
+### New Files to Create
+```
+voice_referee/src/
+├── config/
+│   └── vision_config.py      # Vision configuration
+├── services/
+│   └── vision_service.py     # Vision API wrapper
+├── processors/
+│   ├── screen_analyzer.py    # Screen analysis processor
+│   └── commentary_processor.py # Commentary generator
+├── frames/
+│   └── vision_frames.py      # Custom frame types
+└── monitoring/
+    └── performance.py        # Performance tracking
+```
+
+### Environment Variables (Add to .env)
+```bash
+# Vision Settings
+VISION_ENABLED=false
+VISION_PROVIDER=anthropic
+VISION_MODEL=claude-3-5-sonnet-20241022
+VISION_API_KEY=${ANTHROPIC_API_KEY}
+VISION_ANALYSIS_INTERVAL=2.0
+VISION_MAX_COST_PER_SESSION=0.30
+VISION_COMMENTARY_STYLE=concise
+```
 
 ---
 

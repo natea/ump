@@ -27,8 +27,27 @@ from src.services.daily_transport import create_daily_transport
 from src.services.deepgram_stt import create_deepgram_stt, DeepgramConfig
 from src.services.llm_service import create_llm_service, LLMConfig
 from src.services.tts_service import create_tts_service
+from src.services.vision_service import create_vision_service
+from src.processors.screen_analyzer import create_screen_analyzer
+from src.processors.commentary_processor import create_commentary_processor
 
 logger = logging.getLogger(__name__)
+
+
+async def handle_screen_share_started(transport, participant_id: str):
+    """Handle when a participant starts screen sharing.
+
+    This enables screen capture for vision analysis.
+
+    Args:
+        transport: VoiceRefereeTransport instance
+        participant_id: ID of participant who started sharing
+    """
+    logger.info(f"📺 Screen share detected from {participant_id}, enabling capture...")
+    try:
+        await transport.enable_screen_capture(participant_id, framerate=1)
+    except Exception as e:
+        logger.error(f"Failed to enable screen capture: {e}")
 
 
 def create_pipeline(settings: Settings) -> tuple[Pipeline, PipelineTask]:
@@ -97,6 +116,11 @@ def create_pipeline(settings: Settings) -> tuple[Pipeline, PipelineTask]:
     )
     logger.info("Participant callbacks wired to referee monitor")
 
+    # Set up screen share detection callback if vision is enabled
+    if settings.vision_enabled:
+        transport._on_screen_share_started = lambda pid: handle_screen_share_started(transport, pid)
+        logger.info("Screen share detection callback wired")
+
     # Create LLM service (Anthropic Claude)
     logger.info("Initializing Anthropic LLM service...")
     llm_service = create_llm_service(llm_config)
@@ -105,18 +129,67 @@ def create_pipeline(settings: Settings) -> tuple[Pipeline, PipelineTask]:
     logger.info("Initializing ElevenLabs TTS service...")
     tts_service = create_tts_service(tts_config)
 
+    # Create vision services if enabled
+    screen_analyzer = None
+    commentary_processor = None
+
+    if settings.vision_enabled:
+        logger.info("📺 Vision analysis ENABLED - initializing vision components...")
+
+        # Create vision service
+        vision_service = create_vision_service(
+            provider=settings.vision_provider,
+            model=settings.vision_model,
+            api_key=settings.vision_api_key or settings.anthropic_api_key,
+        )
+        logger.info(f"Vision service created: {settings.vision_provider}/{settings.vision_model}")
+
+        # Create screen analyzer
+        screen_analyzer = create_screen_analyzer(
+            vision_service=vision_service,
+            analysis_interval=settings.vision_analysis_interval,
+            cost_limit=settings.vision_max_cost,
+        )
+        logger.info(f"Screen analyzer created: interval={settings.vision_analysis_interval}s, cost_limit=${settings.vision_max_cost}")
+
+        # Create commentary processor
+        commentary_processor = create_commentary_processor(
+            commentary_style=settings.vision_commentary_style,
+            trigger_threshold=0.6,
+            cooldown_seconds=5.0,
+        )
+        logger.info(f"Commentary processor created: style={settings.vision_commentary_style}")
+    else:
+        logger.info("📺 Vision analysis DISABLED")
+
     # Assemble the pipeline
     logger.info("Assembling pipeline stages...")
-    pipeline = Pipeline(
-        [
-            transport.input(),  # Audio input from Daily
-            stt_service,  # Speech-to-text with diarization
-            referee_monitor,  # Monitor for referee calls
-            llm_service,  # Generate responses
-            tts_service,  # Text-to-speech
-            transport.output(),  # Audio output to Daily
-        ]
-    )
+
+    # Build processor list dynamically
+    processors = [
+        transport.input(),  # Audio input from Daily
+        stt_service,  # Speech-to-text with diarization
+    ]
+
+    # Add screen analyzer if vision is enabled
+    if screen_analyzer:
+        processors.append(screen_analyzer)
+        logger.info("  + Screen analyzer added to pipeline")
+
+    processors.append(referee_monitor)  # Monitor for referee calls
+
+    # Add commentary processor if vision is enabled
+    if commentary_processor:
+        processors.append(commentary_processor)
+        logger.info("  + Commentary processor added to pipeline")
+
+    processors.extend([
+        llm_service,  # Generate responses
+        tts_service,  # Text-to-speech
+        transport.output(),  # Audio output to Daily
+    ])
+
+    pipeline = Pipeline(processors)
 
     # Configure pipeline parameters
     params = PipelineParams(
@@ -163,6 +236,11 @@ async def run_referee(settings: Optional[Settings] = None) -> None:
     logger.info(f"STT: Deepgram {settings.deepgram_model} (diarization: {settings.deepgram_diarize})")
     logger.info(f"LLM: {settings.llm_model}")
     logger.info(f"TTS: ElevenLabs {settings.tts_voice_id}")
+    logger.info(f"Vision: {'ENABLED' if settings.vision_enabled else 'DISABLED'}")
+    if settings.vision_enabled:
+        logger.info(f"  Provider: {settings.vision_provider}")
+        logger.info(f"  Model: {settings.vision_model}")
+        logger.info(f"  Analysis interval: {settings.vision_analysis_interval}s")
     logger.info("=" * 60)
 
     # Create pipeline and task
